@@ -47,6 +47,13 @@ class AnalysisType(str, Enum):
     REQUIREMENTS = "requirements"
 
 
+class OutlineMode(str, Enum):
+    """目录生成模式。"""
+
+    FREE = "free"
+    ALIGNED = "aligned"
+
+
 class AnalysisRequest(BaseModel):
     """文档分析请求"""
 
@@ -60,6 +67,8 @@ class OutlineItem(BaseModel):
     id: str
     title: str
     description: str
+    source_requirement_id: Optional[str] = None
+    source_requirement_title: Optional[str] = None
     children: Optional[List["OutlineItem"]] = None
     content: Optional[str] = None
 
@@ -87,11 +96,27 @@ class OutlineReviewResponse(BaseModel):
     suggestions: List[str] = Field(default_factory=list)
 
 
+class TechnicalRequirementGroup(BaseModel):
+    """技术评分大类。"""
+
+    requirement_id: str
+    title: str
+    description: str
+    detail_points: List[str] = Field(default_factory=list)
+
+
+class TechnicalRequirementGroupResponse(BaseModel):
+    """技术评分大类提取响应。"""
+
+    groups: List[TechnicalRequirementGroup]
+
+
 class OutlineRequest(BaseModel):
     """目录生成请求"""
 
     overview: str = Field(..., description="项目概述")
     requirements: str = Field(..., description="技术评分要求")
+    mode: OutlineMode = Field(OutlineMode.FREE, description="目录生成模式")
     uploaded_expand: Optional[bool] = Field(False, description="是否已上传方案扩写文件")
     old_outline: Optional[str] = Field(
         None, description="上传的方案扩写文件解析出的旧目录JSON"

@@ -6,7 +6,7 @@ import logging
 from fastapi import APIRouter, HTTPException
 
 from ..models.schemas import OutlineRequest, OutlineResponse
-from ..services.openai_service import OpenAIService
+from ..services.outline_service import OutlineService
 from ..utils.errors import AppError
 from ..utils.sse import (
     sse_done,
@@ -25,10 +25,11 @@ router = APIRouter(prefix="/api/outline", tags=["目录管理"])
 async def generate_outline(request: OutlineRequest):
     """生成完整目录结构。"""
     try:
-        openai_service = OpenAIService()
-        return await openai_service.generate_outline(
+        outline_service = OutlineService()
+        return await outline_service.generate_outline(
             overview=request.overview,
             requirements=request.requirements,
+            mode=request.mode,
             uploaded_expand=bool(request.uploaded_expand),
             old_outline=request.old_outline,
         )
@@ -43,7 +44,7 @@ async def generate_outline(request: OutlineRequest):
 async def generate_outline_stream(request: OutlineRequest):
     """流式生成目录结构。"""
     try:
-        openai_service = OpenAIService()
+        outline_service = OutlineService()
     except AppError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc
 
@@ -56,9 +57,10 @@ async def generate_outline_stream(request: OutlineRequest):
 
         async def run_workflow() -> None:
             try:
-                outline = await openai_service.generate_outline(
+                outline = await outline_service.generate_outline(
                     overview=request.overview,
                     requirements=request.requirements,
+                    mode=request.mode,
                     uploaded_expand=bool(request.uploaded_expand),
                     old_outline=request.old_outline,
                     progress_callback=progress_callback,

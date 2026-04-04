@@ -7,10 +7,9 @@ from fastapi.responses import StreamingResponse
 
 from ..models.schemas import AnalysisRequest, FileUploadResponse, WordExportRequest
 from ..services.file_service import FileService
-from ..services.openai_service import OpenAIService
+from ..services.analysis_service import AnalysisService
 from ..services.word_export_service import WordExportService
 from ..utils.errors import AppError
-from ..utils.prompt_manager import build_analysis_messages
 from ..utils.sse import sse_chunk, sse_done, sse_error, sse_response
 
 logger = logging.getLogger(__name__)
@@ -42,18 +41,15 @@ async def upload_file(file: UploadFile = File(...)):
 async def analyze_document_stream(request: AnalysisRequest):
     """流式分析文档内容。"""
     try:
-        openai_service = OpenAIService()
+        analysis_service = AnalysisService()
     except AppError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc
 
-    messages = build_analysis_messages(
-        request.file_content, request.analysis_type.value
-    )
-
     async def generate():
         try:
-            async for chunk in openai_service.stream_chat_completion(
-                messages, temperature=0.3
+            async for chunk in analysis_service.stream_document_analysis(
+                file_content=request.file_content,
+                analysis_type=request.analysis_type.value,
             ):
                 yield sse_chunk(chunk)
         except AppError as exc:

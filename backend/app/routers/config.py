@@ -4,7 +4,7 @@ import logging
 
 from fastapi import APIRouter, HTTPException
 from ..models.schemas import ConfigRequest, ConfigResponse, ModelListResponse
-from ..services.openai_service import OpenAIService
+from ..services.model_service import ModelService
 from ..utils.config_manager import config_manager
 from ..utils.errors import AppError
 
@@ -52,7 +52,7 @@ async def get_available_models(config: ConfigRequest):
                 models=[], success=False, message="请先输入API Key"
             )
 
-        # 临时保存配置以供OpenAI服务使用
+        # 临时保存配置以供模型服务使用
         temp_saved = config_manager.save_config(
             api_key=config.api_key,
             base_url=config.base_url,
@@ -64,11 +64,11 @@ async def get_available_models(config: ConfigRequest):
                 models=[], success=False, message="保存临时配置失败"
             )
 
-        # 创建OpenAI服务实例
-        openai_service = OpenAIService()
+        # 创建模型服务实例
+        model_service = ModelService()
 
         # 获取模型列表
-        models = await openai_service.get_available_models()
+        models = await model_service.get_available_models()
 
         return ModelListResponse(
             models=models, success=True, message=f"获取到 {len(models)} 个模型"

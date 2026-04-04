@@ -2,7 +2,7 @@
  * API 服务与流式响应工具
  */
 import axios from 'axios';
-import { ConfigData, OutlineData, OutlineItem } from '../types';
+import { ConfigData, OutlineData, OutlineItem, OutlineMode } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -31,6 +31,7 @@ export interface AnalysisRequest {
 export interface OutlineRequest {
   overview: string;
   requirements: string;
+  mode?: OutlineMode;
   uploaded_expand?: boolean;
   old_outline?: string;
   old_document?: string;

@@ -2,7 +2,7 @@
  * 目录编辑页面
  */
 import React, { useState } from 'react';
-import { OutlineData, OutlineItem } from '../types';
+import { OutlineData, OutlineItem, OutlineMode } from '../types';
 import { expandApi, getErrorMessage, outlineApi, readSseStream } from '../services/api';
 import { ChevronRightIcon, ChevronDownIcon, DocumentTextIcon, PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
 
@@ -30,6 +30,7 @@ const OutlineEdit: React.FC<OutlineEditProps> = ({
   const [uploadedExpand, setUploadedExpand] = useState(false);
   const [oldOutline, setOldOutline] = useState<string | null>(null);
   const [oldDocument, setOldDocument] = useState<string | null>(null);
+  const [outlineMode, setOutlineMode] = useState<OutlineMode>('free');
 
   // 处理方案扩写文件上传
   const handleExpandUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,6 +71,7 @@ const OutlineEdit: React.FC<OutlineEditProps> = ({
       const response = await outlineApi.generateOutlineStream({
         overview: projectOverview,
         requirements: techRequirements,
+        mode: outlineMode,
         uploaded_expand: uploadedExpand,
         old_outline: oldOutline || undefined,
         old_document: oldDocument || undefined,
@@ -469,7 +471,44 @@ const OutlineEdit: React.FC<OutlineEditProps> = ({
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">📋 目录管理</h2>
         
-        <div className="flex space-x-4">
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">目录生成模式</p>
+            <div className="grid gap-3 md:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => setOutlineMode('free')}
+                disabled={generating}
+                className={`rounded-lg border px-4 py-3 text-left transition-colors ${
+                  outlineMode === 'free'
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                } disabled:cursor-not-allowed disabled:opacity-60`}
+              >
+                <div className="text-sm font-medium">AI自行理解</div>
+                <p className="mt-1 text-xs leading-5 text-gray-500">
+                  AI 根据项目概述和技术评分要求自由组织一级目录。
+                </p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setOutlineMode('aligned')}
+                disabled={generating}
+                className={`rounded-lg border px-4 py-3 text-left transition-colors ${
+                  outlineMode === 'aligned'
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                } disabled:cursor-not-allowed disabled:opacity-60`}
+              >
+                <div className="text-sm font-medium">与技术评分项一一对应</div>
+                <p className="mt-1 text-xs leading-5 text-gray-500">
+                  一级目录将严格按技术评分大类生成，标题和顺序固定，二三级目录由 AI 自动展开。
+                </p>
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-4">
           {/* 方案扩写按钮 */}
           <div className="relative">
             <input
@@ -523,7 +562,7 @@ const OutlineEdit: React.FC<OutlineEditProps> = ({
               '生成目录结构'
             )}
           </button>
-
+          </div>
         </div>
 
         {/* 显示已上传的方案扩写文件 */}

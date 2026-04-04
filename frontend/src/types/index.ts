@@ -12,9 +12,13 @@ export interface OutlineItem {
   id: string;
   title: string;
   description: string;
+  source_requirement_id?: string;
+  source_requirement_title?: string;
   children?: OutlineItem[];
   content?: string;
 }
+
+export type OutlineMode = 'free' | 'aligned';
 
 export interface OutlineData {
   outline: OutlineItem[];

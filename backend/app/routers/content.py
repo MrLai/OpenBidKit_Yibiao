@@ -5,7 +5,7 @@ import logging
 from fastapi import APIRouter, HTTPException
 
 from ..models.schemas import ChapterContentRequest
-from ..services.openai_service import OpenAIService
+from ..services.content_service import ContentService
 from ..utils.errors import AppError
 from ..utils.sse import sse_chunk, sse_done, sse_error, sse_response
 
@@ -18,8 +18,8 @@ router = APIRouter(prefix="/api/content", tags=["内容管理"])
 async def generate_chapter_content(request: ChapterContentRequest):
     """为单个章节生成完整内容。"""
     try:
-        openai_service = OpenAIService()
-        content = await openai_service.generate_chapter_content(
+        content_service = ContentService()
+        content = await content_service.generate_chapter_content(
             chapter=request.chapter,
             parent_chapters=request.parent_chapters,
             sibling_chapters=request.sibling_chapters,
@@ -37,13 +37,13 @@ async def generate_chapter_content(request: ChapterContentRequest):
 async def generate_chapter_content_stream(request: ChapterContentRequest):
     """流式生成单章节内容。"""
     try:
-        openai_service = OpenAIService()
+        content_service = ContentService()
     except AppError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc
 
     async def generate():
         try:
-            async for chunk in openai_service.stream_chapter_content(
+            async for chunk in content_service.stream_chapter_content(
                 chapter=request.chapter,
                 parent_chapters=request.parent_chapters,
                 sibling_chapters=request.sibling_chapters,

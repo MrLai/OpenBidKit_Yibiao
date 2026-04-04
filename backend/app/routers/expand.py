@@ -6,8 +6,8 @@ import logging
 from fastapi import APIRouter, File, UploadFile
 
 from ..models.schemas import FileUploadResponse
+from ..services.expand_service import ExpandService
 from ..services.file_service import FileService
-from ..services.openai_service import OpenAIService
 from ..utils.errors import AppError
 
 logger = logging.getLogger(__name__)
@@ -25,8 +25,8 @@ async def upload_file(file: UploadFile = File(...)):
             )
 
         file_content = await FileService.process_uploaded_file(file)
-        openai_service = OpenAIService()
-        outline = await openai_service.generate_expand_outline(file_content)
+        expand_service = ExpandService()
+        outline = await expand_service.generate_expand_outline(file_content)
         return FileUploadResponse(
             success=True,
             message=f"文件 {file.filename} 上传成功",
