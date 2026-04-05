@@ -8,6 +8,7 @@ import StepBar from './components/StepBar';
 import DocumentAnalysis from './pages/DocumentAnalysis';
 import OutlineEdit from './pages/OutlineEdit';
 import ContentEdit from './pages/ContentEdit';
+import { draftStorage } from './utils/draftStorage';
 
 function App() {
   const {
@@ -19,9 +20,19 @@ function App() {
     updateOutline,
     nextStep,
     prevStep,
+    resetState,
   } = useAppState();
 
   const steps = ['标书解析', '目录编辑', '正文编辑'];
+
+  const handleReset = () => {
+    if (!window.confirm('确定要清理所有缓存数据并从头开始吗？')) {
+      return;
+    }
+
+    draftStorage.clearAll();
+    resetState();
+  };
 
   const renderCurrentPage = () => {
     switch (state.currentStep) {
@@ -79,6 +90,16 @@ function App() {
         <div className="sticky bottom-0 z-50 bg-white border-t border-gray-200 px-6 py-4">
           <div className="flex justify-between">
             <div className="flex items-center space-x-3">
+              {state.currentStep === 0 && (
+                <button
+                  onClick={handleReset}
+                  title="清理所有缓存数据，从头开始"
+                  className="inline-flex items-center px-4 py-2 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  重置
+                </button>
+              )}
+
               <button
                 onClick={() => updateStep(0)}
                 disabled={state.currentStep === 0}

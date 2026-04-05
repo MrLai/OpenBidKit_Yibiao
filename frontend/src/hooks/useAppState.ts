@@ -88,6 +88,10 @@ export const useAppState = () => {
     });
   }, []);
 
+  const resetState = useCallback(() => {
+    setState(initialState);
+  }, []);
+
   return {
     state,
     updateConfig,
@@ -97,5 +101,6 @@ export const useAppState = () => {
     updateOutline,
     nextStep,
     prevStep,
+    resetState,
   };
 };
