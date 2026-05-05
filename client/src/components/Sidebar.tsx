@@ -2,7 +2,6 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 import { useState, type ComponentType, type ReactElement, type SVGProps } from 'react';
 import { appMenuItems } from '../app/menuConfig';
 import type { SectionId } from '../shared/types/navigation';
-import SettingsDialog from './SettingsDialog';
 import logoUrl from '../../assets/icon_256.png';
 
 interface SidebarProps {
@@ -15,6 +14,7 @@ const navigationIcons: Record<SectionId, ComponentType<SVGProps<SVGSVGElement>>>
   'knowledge-base': ArchiveIcon,
   'duplicate-check': CompareIcon,
   'rejection-check': ShieldIcon,
+  settings: GearIcon,
 };
 
 function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
@@ -71,9 +71,31 @@ function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
       </nav>
 
       <div className="sidebar-footer">
-        <SettingsDialog collapsed={collapsed} />
+        {collapsed ? wrapTooltip('设置', renderSettingsButton(activeSection, onSectionChange)) : renderSettingsButton(activeSection, onSectionChange)}
       </div>
     </aside>
+  );
+}
+
+function renderSettingsButton(activeSection: SectionId, onSectionChange: (section: SectionId) => void) {
+  const isActive = activeSection === 'settings';
+
+  return (
+    <button
+      type="button"
+      className={`settings-trigger ${isActive ? 'is-active' : ''}`}
+      onClick={() => onSectionChange('settings')}
+      aria-current={isActive ? 'page' : undefined}
+      aria-label="设置"
+    >
+      <span className="nav-icon" aria-hidden="true">
+        <GearIcon />
+      </span>
+      <span className="settings-copy">
+        <strong>设置</strong>
+        <small>模型与解析配置</small>
+      </span>
+    </button>
   );
 }
 
@@ -132,6 +154,15 @@ function ShieldIcon(props: SVGProps<SVGSVGElement>) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
       <path d="M12 3.5 18.5 6v5.4c0 4.25-2.55 7.55-6.5 9.1-3.95-1.55-6.5-4.85-6.5-9.1V6z" />
       <path d="m9 12.2 2 2 4-4.5" />
+    </svg>
+  );
+}
+
+function GearIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+      <path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z" />
+      <path d="m19.1 13.5.1-1.5-.1-1.5 2-1.5-2-3.4-2.45.95a8.2 8.2 0 0 0-2.55-1.45L13.75 2h-3.5L9.9 5.1a8.2 8.2 0 0 0-2.55 1.45L4.9 5.6l-2 3.4 2 1.5L4.8 12l.1 1.5-2 1.5 2 3.4 2.45-.95A8.2 8.2 0 0 0 9.9 18.9l.35 3.1h3.5l.35-3.1a8.2 8.2 0 0 0 2.55-1.45l2.45.95 2-3.4z" />
     </svg>
   );
 }

@@ -1,12 +1,12 @@
 import type { ChatCompletionRequest, JsonCompletionRequest } from './ai';
-import type { AiConfig, ConfigSaveResult, ModelListResult } from './config';
+import type { ClientConfig, ConfigSaveResult, ModelListResult } from './config';
 
 export interface YibiaoBridge {
   appName: string;
   platform: string;
   config: {
-    load: () => Promise<AiConfig>;
-    save: (config: AiConfig) => Promise<ConfigSaveResult>;
+    load: () => Promise<ClientConfig>;
+    save: (config: ClientConfig) => Promise<ConfigSaveResult>;
     listModels: () => Promise<ModelListResult>;
   };
   ai: {

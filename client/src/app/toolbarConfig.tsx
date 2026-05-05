@@ -17,6 +17,10 @@ export function buildToolbarGroups({
   activeSection,
   onSectionChange,
 }: BuildToolbarGroupsOptions): FloatingToolbarGroup[] {
+  if (activeSection === 'settings') {
+    return [];
+  }
+
   const activeIndex = sectionOrder.indexOf(activeSection);
   const goToSection = (offset: number) => {
     const nextSection = sectionOrder[activeIndex + offset];
